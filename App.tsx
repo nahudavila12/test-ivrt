@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   ScrollView,
@@ -14,6 +14,8 @@ import {
   Text,
   useColorScheme,
   View,
+  TouchableOpacity,
+  SafeAreaView,
 } from 'react-native';
 
 import {
@@ -23,6 +25,8 @@ import {
   LearnMoreLinks,
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
+import DevicesScreen from './src/screens/DevicesScreen';
+
 
 type SectionProps = PropsWithChildren<{
   title: string;
@@ -54,7 +58,40 @@ function Section({children, title}: SectionProps): React.JSX.Element {
   );
 }
 
-function App(): React.JSX.Element {
+const NAV_ITEMS = [
+  { key: 'config', label: 'Config.', icon: '⚙️' },
+  { key: 'evaluaciones', label: 'Evaluaciones', icon: '📈' },
+  { key: 'home', label: 'Home', icon: '🏠' },
+  { key: 'atletas', label: 'Atletas', icon: '🏃' },
+  { key: 'dispositivos', label: 'Dispositivos', icon: '🔗' },
+];
+
+const Placeholder: React.FC<{ label: string }> = ({ label }) => (
+  <View style={styles.placeholderContainer}>
+    <Text style={styles.placeholderText}>{label}</Text>
+  </View>
+);
+
+const App: React.FC = () => {
+  const [tab, setTab] = useState('dispositivos');
+
+  const renderScreen = () => {
+    switch (tab) {
+      case 'dispositivos':
+        return <DevicesScreen />;
+      case 'config':
+        return <Placeholder label="Configuración" />;
+      case 'evaluaciones':
+        return <Placeholder label="Evaluaciones" />;
+      case 'home':
+        return <Placeholder label="Home" />;
+      case 'atletas':
+        return <Placeholder label="Atletas" />;
+      default:
+        return <DevicesScreen />;
+    }
+  };
+
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -73,43 +110,83 @@ function App(): React.JSX.Element {
   const safePadding = '5%';
 
   return (
-    <View style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        style={backgroundStyle}>
-        <View style={{paddingRight: safePadding}}>
-          <Header/>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <View style={styles.content}>{renderScreen()}</View>
+        <View style={styles.navbar}>
+          {NAV_ITEMS.map((item) => (
+            <TouchableOpacity
+              key={item.key}
+              style={[styles.navItem, tab === item.key && styles.navItemActive]}
+              onPress={() => setTab(item.key)}
+            >
+              <Text style={[styles.navIcon, tab === item.key && styles.navIconActive]}>{item.icon}</Text>
+              <Text style={[styles.navLabel, tab === item.key && styles.navLabelActive]}>{item.label}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-            paddingHorizontal: safePadding,
-            paddingBottom: safePadding,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#181A20',
+  },
+  container: {
+    flex: 1,
+    backgroundColor: '#181A20',
+  },
+  content: {
+    flex: 1,
+  },
+  navbar: {
+    flexDirection: 'row',
+    backgroundColor: '#23242a',
+    borderTopWidth: 1,
+    borderTopColor: '#222',
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 6,
+  },
+  navItemActive: {
+    backgroundColor: '#181A20',
+  },
+  navIcon: {
+    fontSize: 22,
+    color: '#b0b0b0',
+  },
+  navIconActive: {
+    color: '#2563eb',
+  },
+  navLabel: {
+    fontSize: 12,
+    color: '#b0b0b0',
+    marginTop: 2,
+  },
+  navLabelActive: {
+    color: '#2563eb',
+    fontWeight: 'bold',
+  },
+  placeholderContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#181A20',
+  },
+  placeholderText: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+  },
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
